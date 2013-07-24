@@ -32,6 +32,7 @@ Buildr.settings.build['scala.version'] = Buildr::Scala::SCALA_VERSION_FOR_SPECS
 require 'buildr/clojure'
 require 'buildr/groovy'
 require 'buildr/scala'
+require 'buildr/kawa'
 require 'buildr/bnd'
 require 'buildr/jaxb_xjc'
 
@@ -43,6 +44,7 @@ artifacts(
   Buildr::JaxbXjc.dependencies,
   Buildr::Bnd.dependencies,
   Buildr::Scala::Scalac.dependencies,
+  Buildr::Kawa::Kawac.dependencies,
   Buildr::Shell::BeanShell.artifact,
   Buildr::Clojure.dependencies
 ).each do |path|

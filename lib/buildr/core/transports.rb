@@ -272,6 +272,7 @@ module URI
       connect do |http|
         trace "Requesting #{self}"
         headers = { 'If-Modified-Since' => CGI.rfc1123_date(options[:modified].utc) } if options[:modified]
+        http.read_timeout = 500
         request = Net::HTTP::Get.new(request_uri.empty? ? '/' : request_uri, headers)
         request.basic_auth self.user, self.password if self.user
         http.request request do |response|
