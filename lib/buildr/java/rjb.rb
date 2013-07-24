@@ -13,10 +13,17 @@
 # License for the specific language governing permissions and limitations under
 # the License.
 
-if RbConfig::CONFIG['host_os'] =~ /darwin/i
+host_os = RbConfig::CONFIG['host_os']
+
+if host_os =~ /darwin/i
   # On OS X we attempt to guess where JAVA_HOME is, if not set
   # We set JAVA_HOME early so we can use it without calling Java.load first.
   ENV['JAVA_HOME'] ||= '/System/Library/Frameworks/JavaVM.framework/Home'
+end
+
+if host_os =~ /linux/i
+  # Linux can guess too!
+  ENV['JAVA_HOME'] ||= %x(readlink -f `which javac` | sed "s:/bin/javac::")
 end
 
 require 'rjb'
