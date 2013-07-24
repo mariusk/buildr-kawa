@@ -21,6 +21,10 @@ module Buildr::Kawa
     class << self
       def kawa_home
         env_home = ENV['KAWA_HOME']
+        # Make sure env_home ends with a slash.
+        if env_home[-1,1] != '/'
+          env_home += '/'
+        end
         # TODO: Check env_home and add a trailing "/" if missing.
         @home ||= (if !env_home.nil? && File.exists?(env_home+'kawa.jar')
                      env_home
@@ -47,15 +51,19 @@ module Buildr::Kawa
 
     Javac = Buildr::Compiler::Javac
 
-    OPTIONS = []
+    OPTIONS = [:warnings, :optimise, :target, :debug, :source, :kawac, :javac]
 
     Java.classpath << lambda { dependencies }
 
-    specify :language => :kawa, :sources => [:kawa, :java], :source_ext => [:kawa, :java],
+    specify :language => :kawa, :sources => [:kawa, :java], :source_ext => [:scm, :java],
     :target => 'classes', :target_ext => 'class', :packaging => :jar
 
     def initialize(project, options)
       super
+      options[:debug] = Buildr.options.debug if options[:debug].nil?
+      options[:warnings] = verbose if options[:warnings].nil?
+      options[:optimise] ||= false
+      #options[:target] ||= 'target/classes'
       options[:javac] ||= {}
       @java = Javac.new(project, options[:javac])
     end
@@ -65,14 +73,17 @@ module Buildr::Kawa
     end
 
     def compile_with_kawac(sources, target, dependencies)
-      check_options(options, [:source, :target, :javac])
+      check_options(options, OPTIONS)
       java_sources = java_sources(sources)
       kawa_sources = kawa_sources(sources)
+
+      dependencies.unshift target
 
       cmd_args = []
       source_paths = sources.select { |source| File.directory?(source) }
       cp = dependencies.join(':')
       cp += ':'+source_paths.join(':') unless source_paths.empty?
+      #cmd_args << "CLASSPATH="+cp
       cmd_args << 'kawa'
       cmd_args << "-d" << File.expand_path(target)
       cmd_args += kawac_args
@@ -82,6 +93,7 @@ module Buildr::Kawa
       unless Buildr.application.options.dryrun
         trace((['kawac'] + [':'] + cmd_args).join(' '))
         execstr = cmd_args.join(' ')
+        #$stderr.puts "EXEC: #{execstr}\nCLASSPATH=#{cp}"
         result = system({'CLASSPATH' => cp}, execstr)
 
         unless java_sources.empty?
@@ -156,6 +168,11 @@ module Buildr::Kawa
 
     def kawac_args
       args = []
+      if options[:warnings]
+        args << '--warn-undefined-variable'
+        args << '--warn-invoke-unknown-method'
+        args << '--warn-as-error'
+      end
       args
     end
   end
