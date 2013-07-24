@@ -12,28 +12,10 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
 # License for the specific language governing permissions and limitations under
 # the License.
+#
+# Shamelessly modelled on the scala plugin already contributed to buildr.
 
-module Buildr #:nodoc:
-  module Run #:nodoc:
+ENV['KAWA_HOME'] ||= '/usr/local/share/java' if File.exists?('/usr/local/share/java/kawa.jar')
 
-    class JavaRunner < Base
-      include Buildr::JRebel
-
-      specify :name => :java, :languages => [:java, :scala, :groovy, :clojure, :kawa]
-
-      def run(task)
-        fail "Missing :main option" unless task.options[:main]
-        cp = project.compile.dependencies + [project.path_to(:target, :classes), project.path_to(:target, :resources)] + task.classpath
-        Java::Commands.java(task.options[:main], {
-          :properties => jrebel_props(project).merge(task.options[:properties] || {}),
-          :classpath => cp,
-          :java_args => jrebel_args + (task.options[:java_args] || [])
-        })
-      end
-    end # JavaRunnner
-
-  end
-end
-
-Buildr::Run.runners << Buildr::Run::JavaRunner
-
+require 'buildr/kawa/compiler'
+Object::Kawa = Buildr::Kawa

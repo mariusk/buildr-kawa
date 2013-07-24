@@ -71,6 +71,7 @@ module Buildr #:nodoc:
         x = <<-EOF
 #{"require 'buildr/scala'\n" if Dir.glob(path + "/**/*.scala").size > 0}
 #{"require 'buildr/groovy'\n" if Dir.glob(path + "/**/*.groovy").size > 0}
+#{"require 'buildr/kawa'\n" if Dir.glob(path + "/**/*.scm").size > 0}
 # Version number for this release
 VERSION_NUMBER = "1.0.0"
 # Group identifier for your projects
@@ -97,6 +98,7 @@ define "#{name}" do
           script += <<-EOF
   layout[:source, :main, :java] = "#{source}"
   layout[:source, :main, :scala] = "#{source}"
+  layout[:source, :main, :kawa] = "#{source}"
 EOF
         end
         if output
@@ -105,6 +107,7 @@ EOF
   layout[:target, :main] = "#{output}"
   layout[:target, :main, :java] = "#{output}"
   layout[:target, :main, :scala] = "#{output}"
+  layout[:target, :main, :kawa] = "#{output}"
 EOF
         end
         return script
