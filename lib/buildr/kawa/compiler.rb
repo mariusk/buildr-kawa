@@ -122,7 +122,8 @@ module Buildr::Kawa
             packages = count(source, /^\s*package\s+([^\s;]+)\s*;?\s*/)
             # Kawa specific, not sure how this is actually used. Just blindly modelled on what I understood
             # from the similar scala code.
-            found = findFirst(source, /(\(define-alias\s+\S+\s+(#{name}))/) # Maybe add support for define-namespace??
+            found = findFirst(source, /(\(define-simple-class\s+\S+\s+\(#{name}\))/) # Maybe add support for define-namespace??
+            $stderr.puts "NAME: #{name}, found #{found}, packages #{packages}, target #{target}"
             
             if (found && packages == 1)
               map[source] = package ? File.join(target, package[1].gsub('.', '/'), name.ext(target_ext)) : target
@@ -138,7 +139,7 @@ module Buildr::Kawa
         map.each do |key, value|
           map[key] = first_file unless map[key]
         end
-
+        $stderr.puts "MAP #{map}"
         map
       end
     end

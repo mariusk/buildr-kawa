@@ -119,7 +119,7 @@ describe 'kawa compiler' do
 
   def define_test1_project
     write 'src/main/kawa/com/example/Test1.scm',
-'(module-name "com.example.")
+'(module-name com.example.)
 (define-simple-class Test1 ()
   (i init: 1))
 '
@@ -147,7 +147,7 @@ describe 'kawa compiler' do
     it 'should compile kawa class depending on java class in same project' do
       write 'src/main/java/com/example/Foo.java', 'package com.example; public class Foo {}'
       write 'src/main/kawa/com/example/Bar.scm', '
-(module-name "com.example.")
+(module-name com.example.)
 (define-simple-class Bar (Foo))
 '
       define 'test1', :version=>'1.0' do
