@@ -81,9 +81,6 @@ module Buildr::Kawa
 
       cmd_args = []
       source_paths = sources.select { |source| File.directory?(source) }
-      cp = dependencies.join(':')
-      cp += ':'+source_paths.join(':') unless source_paths.empty?
-      #cmd_args << "CLASSPATH="+cp
       cmd_args << 'kawa'
       cmd_args << "-d" << File.expand_path(target)
       cmd_args += kawac_args
@@ -94,6 +91,7 @@ module Buildr::Kawa
       unless Buildr.application.options.dryrun
         trace((['kawac'] + [':'] + cmd_args).join(' '))
         execstr = cmd_args.join(' ')
+        cp = dependencies.join(':')
         $stderr.puts "EXEC: #{execstr}\nCLASSPATH=#{cp}"
         result = system({'CLASSPATH' => cp}, execstr)
 
@@ -142,7 +140,7 @@ module Buildr::Kawa
             if false
               founds = '-'
               founds = found.to_a.join('|') if found
-              $stderr.puts "\nNAME: #{name}, ext #{ext}, found #{founds}, packages #{packages}, target #{target}"
+              #$stderr.puts "\nNAME: #{name}, ext #{ext}, found #{founds}, packages #{packages}, target #{target}"
             end
             
             if (found && packages == 1)

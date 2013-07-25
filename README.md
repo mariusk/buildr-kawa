@@ -11,3 +11,8 @@ Since the docs on the buildr homepage regarding building is obsolete, here's how
 
 Modify the last line if you're on another platform, although please note that the current kawa support
 has not been written to support, or have been tested, on any other platform than linux.
+
+To run the kawa tests, run the following command:
+
+    rspec spec/kawa/compiler_spec.rb
+
