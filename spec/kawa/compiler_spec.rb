@@ -43,7 +43,6 @@ describe 'kawa compiler options' do
 
   it 'should include all warnings when warnings is true' do
     compile_task.using(:warnings => true)
-    puts "MMM: ", kawac_args
     kawac_args.should include('--warn-undefined-variable')
     kawac_args.should include('--warn-invoke-unknown-method')
     kawac_args.should include('--warn-as-error')
@@ -179,9 +178,3 @@ describe 'kawa compiler' do
   end
 
 end
-
-# describe "kawa tests" do
-#   it 'should respond to from() and return self' do
-#     "abc".should eq("abc")
-#   end
-# end
