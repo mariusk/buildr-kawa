@@ -74,7 +74,7 @@ describe 'kawa compiler' do
 
   it 'should identify itself from source directories' do
     write 'src/main/kawa/com/example/Test.scm',
-'(module-name "com.example")
+'(module-name com.example.)
   (define-simple-class <Test> ()
   (i init: 1))
 '
@@ -155,7 +155,7 @@ describe 'kawa compiler' do
       end
       task('test1:package').invoke
       file('target/test1-1.0.jar').should exist
-      sleep 1000
+      #sleep 1000
       Zip::ZipFile.open(project('test1').package(:jar).to_s) do |zip|
         zip.file.exist?('com/example/Foo.class').should be_true
         zip.file.exist?('com/example/Bar.class').should be_true

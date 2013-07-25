@@ -93,13 +93,18 @@ module Buildr::Kawa
       unless Buildr.application.options.dryrun
         trace((['kawac'] + [':'] + cmd_args).join(' '))
         execstr = cmd_args.join(' ')
-        #$stderr.puts "EXEC: #{execstr}\nCLASSPATH=#{cp}"
+        # $stderr.puts "EXEC: #{execstr}\nCLASSPATH=#{cp}"
         result = system({'CLASSPATH' => cp}, execstr)
 
         unless java_sources.empty?
           trace 'Compiling mixed Java/Kawa(.scm) sources'
           deps = dependencies + Kawac.dependencies + [ File.expand_path(target) ]
           @java.compile(java_sources, target, deps)
+        end
+
+        unless result
+          # Retrying kawa compilation post java compilation
+          result = system({'CLASSPATH' => cp}, execstr)
         end
       end
     end
@@ -117,13 +122,23 @@ module Buildr::Kawa
                   end
         sources.each do |source|
           if ['.java', '.scm'].include? File.extname(source)
+            ext = File.extname(source)
             name = File.basename(source).split(".")[0]
-            package = findFirst(source, /^\s*package\s+([^\s;]+)\s*;?\s*/)
-            packages = count(source, /^\s*package\s+([^\s;]+)\s*;?\s*/)
-            # Kawa specific, not sure how this is actually used. Just blindly modelled on what I understood
-            # from the similar scala code.
-            found = findFirst(source, /(\(define-simple-class\s+\S+\s+\(#{name}\))/) # Maybe add support for define-namespace??
-            $stderr.puts "NAME: #{name}, found #{found}, packages #{packages}, target #{target}"
+            package = nil
+            packages = nil
+            found = []
+            if ext == '.java'
+              package = findFirst(source, /^\s*package\s+([^\s;]+)\s*;?\s*/)
+              packages = count(source,    /^\s*package\s+([^\s;]+)\s*;?\s*/)
+              found = findFirst(source, /((trait)|(class)|(object))\s+(#{name})/)
+            elsif ext == '.scm'
+              package = findFirst(source, /^\s*\(module-name\s+([^\s;]+)\./)
+              packages = count(source,    /^\s*\(module-name\s+([^\s;]+)\./)
+              found = findFirst(source, /(define-simple-class)\s+(#{name})+\s+\((.*?)\)/) # Maybe add support for define-namespace??
+            end
+            #founds = '-'
+            #founds = found.to_a.join('|') if found
+            #$stderr.puts "\nNAME: #{name}, ext #{ext}, found #{founds}, packages #{packages}, target #{target}"
             
             if (found && packages == 1)
               map[source] = package ? File.join(target, package[1].gsub('.', '/'), name.ext(target_ext)) : target
@@ -139,7 +154,7 @@ module Buildr::Kawa
         map.each do |key, value|
           map[key] = first_file unless map[key]
         end
-        $stderr.puts "MAP #{map}"
+        #$stderr.puts "MAP #{map}"
         map
       end
     end
