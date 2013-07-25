@@ -87,13 +87,14 @@ module Buildr::Kawa
       cmd_args << 'kawa'
       cmd_args << "-d" << File.expand_path(target)
       cmd_args += kawac_args
+      cmd_args << options[:kawac] if options[:kawac]
       cmd_args << "-C"
       cmd_args += kawa_sources
       
       unless Buildr.application.options.dryrun
         trace((['kawac'] + [':'] + cmd_args).join(' '))
         execstr = cmd_args.join(' ')
-        # $stderr.puts "EXEC: #{execstr}\nCLASSPATH=#{cp}"
+        $stderr.puts "EXEC: #{execstr}\nCLASSPATH=#{cp}"
         result = system({'CLASSPATH' => cp}, execstr)
 
         unless java_sources.empty?
@@ -134,11 +135,15 @@ module Buildr::Kawa
             elsif ext == '.scm'
               package = findFirst(source, /^\s*\(module-name\s+([^\s;]+)\./)
               packages = count(source,    /^\s*\(module-name\s+([^\s;]+)\./)
-              found = findFirst(source, /(define-simple-class)\s+(#{name})+\s+\((.*?)\)/) # Maybe add support for define-namespace??
+              #found = findFirst(source, /^\s*(define-simple-class)\s+(#{name})+\s+\((.*?)\)/) # Maybe add support for define-namespace??
+              found = findFirst(source, /^\s*\(((define-simple-class)|(activity))\s+(#{name})/) # Maybe add support for define-namespace??
             end
-            #founds = '-'
-            #founds = found.to_a.join('|') if found
-            #$stderr.puts "\nNAME: #{name}, ext #{ext}, found #{founds}, packages #{packages}, target #{target}"
+
+            if false
+              founds = '-'
+              founds = found.to_a.join('|') if found
+              $stderr.puts "\nNAME: #{name}, ext #{ext}, found #{founds}, packages #{packages}, target #{target}"
+            end
             
             if (found && packages == 1)
               map[source] = package ? File.join(target, package[1].gsub('.', '/'), name.ext(target_ext)) : target
