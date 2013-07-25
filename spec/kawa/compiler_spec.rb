@@ -143,23 +143,38 @@ describe 'kawa compiler' do
     end
   end
 
-  if true
-    it 'should compile kawa class depending on java class in same project' do
-      write 'src/main/java/com/example/Foo.java', 'package com.example; public class Foo {}'
-      write 'src/main/kawa/com/example/Bar.scm', '
+  it 'should compile kawa class depending on java class in same project' do
+    write 'src/main/java/com/example/Foo.java', 'package com.example; public class Foo {}'
+    write 'src/main/kawa/com/example/Bar.scm', '
 (module-name com.example.)
 (define-simple-class Bar (Foo))
 '
-      define 'test1', :version=>'1.0' do
-        package(:jar)
-      end
-      task('test1:package').invoke
-      file('target/test1-1.0.jar').should exist
-      #sleep 1000
-      Zip::ZipFile.open(project('test1').package(:jar).to_s) do |zip|
-        zip.file.exist?('com/example/Foo.class').should be_true
-        zip.file.exist?('com/example/Bar.class').should be_true
-      end
+    define 'test1', :version=>'1.0' do
+      package(:jar)
+    end
+    task('test1:package').invoke
+    file('target/test1-1.0.jar').should exist
+    #sleep 1000
+    Zip::ZipFile.open(project('test1').package(:jar).to_s) do |zip|
+      zip.file.exist?('com/example/Foo.class').should be_true
+      zip.file.exist?('com/example/Bar.class').should be_true
+    end
+  end
+
+  it 'should compile java class depending on kawa class in same project' do
+    write 'src/main/kawa/com/example/Foo.scm', '
+(module-name com.example.)
+(define-simple-class Foo ())
+'
+    write 'src/main/java/com/example/Bar.java',  'package com.example; public class Bar extends Foo {}'
+    define 'test1', :version=>'1.0' do
+      package(:jar)
+    end
+    task('test1:package').invoke
+    file('target/test1-1.0.jar').should exist
+    Zip::ZipFile.open(project('test1').package(:jar).to_s) do |zip|
+      zip.file.exist?('com/example/Foo.class').should be_true
+      zip.file.exist?('com/example/Bar.class').should be_true
     end
   end
 
