@@ -92,7 +92,7 @@ module Buildr::Kawa
         trace((['kawac'] + [':'] + cmd_args).join(' '))
         execstr = cmd_args.join(' ')
         cp = dependencies.join(':')
-        $stderr.puts "EXEC: #{execstr}\nCLASSPATH=#{cp}"
+        #$stderr.puts "EXEC: #{execstr}\nCLASSPATH=#{cp}"
         result = system({'CLASSPATH' => cp}, execstr)
 
         unless java_sources.empty?
