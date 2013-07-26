@@ -15,6 +15,9 @@
 
 # Again, modelled on the similar scala code.
 
+# Try to auto-detect java if JAVA_HOME is not set.
+ENV['JAVA_HOME'] ||= `echo $(readlink -f $(which javac) | sed "s:/bin/javac::")`.chomp()
+
 require File.expand_path(File.join(File.dirname(__FILE__), '..', 'spec_helpers'))
 
 describe 'kawa compiler options' do
