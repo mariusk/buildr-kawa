@@ -27,7 +27,6 @@ The ANDROID variables I'm using are:
     ANDROID_HOME="/opt/android-studio/sdk"
     ANDROID_PLATFORM="android-15"
 
-They need to be adjusted to whatever they need to be on your systems (your SDK and target platform). This is adapted from Per Bothner's instructions for building on Kawa with Android support which you can find here:
+They need to be adjusted to whatever they need to be on your systems (your SDK and target platform). This is adapted from Per Bothner's instructions for building on Kawa with Android support which you can find here http://www.gnu.org/software/kawa/Building-for-Android.html.
 
-    http://www.gnu.org/software/kawa/Building-for-Android.html
 
